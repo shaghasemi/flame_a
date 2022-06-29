@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   flame: ^1.2.0
+  flame_audio: ^1.2.0
   flutter:
     sdk: flutter
 
@@ -25,6 +26,9 @@ flutter:
 
   assets:
     - assets/images/
+
+
+    - assets/audio/
 
   # example:
   # fonts:
