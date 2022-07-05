@@ -26,8 +26,6 @@ flutter:
 
   assets:
     - assets/images/
-
-
     - assets/audio/
 
   # example:

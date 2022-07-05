@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(
     GameWidget(
-      // game: MyGame(),
-      game: MyGameAudio(),
+      game: MyGame(),
+      // game: MyGameAudio(),
     ),
   );
 }
@@ -41,6 +41,12 @@ class MyGame extends FlameGame with HasTappables {
     final double screenWidth = size[0];
     final double screenHeight = size[1];
     const double textBoxHeight = 100;
+
+    // Initialize Audio background music
+    FlameAudio.bgm.initialize();
+
+    bool musicPlaying = false;
+
     background
       ..sprite = await loadSprite('background.png')
       ..size = Vector2(screenWidth, screenHeight - 100);
@@ -109,7 +115,6 @@ class MyGame extends FlameGame with HasTappables {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-
     switch (dialogLevel) {
       case 1:
         dialogTextPaint.render(
@@ -138,6 +143,8 @@ class MyGame extends FlameGame with HasTappables {
     switch (dialogButton.scene2Level) {
       case 1:
         sceneLevel = 2;
+        // Play music
+        if (!FlameAudio.bgm.isPlaying) FlameAudio.bgm.play('music.ogg');
         canvas.drawRect(
           Rect.fromLTWH(0, size[1] - 100, size[0] - 60, 100),
           Paint()..color = Colors.black,
@@ -161,6 +168,7 @@ class MyGame extends FlameGame with HasTappables {
         if (!boy.isMounted) add(boy);
         break;
       case 2:
+        if (FlameAudio.bgm.isPlaying) FlameAudio.bgm.stop();
         canvas.drawRect(
           Rect.fromLTWH(0, size[1] - 100, size[0] - 60, 100),
           Paint()..color = Colors.black,
@@ -198,66 +206,5 @@ class DialogButton extends SpriteComponent with Tappable {
     } catch (ex) {
       return false;
     }
-  }
-}
-
-class MyGameAudio extends FlameGame with TapDetector, DoubleTapDetector {
-  bool isPlayingMusic = false;
-  int trackNumber = 1;
-  TextComponent instructions = TextComponent();
-  final String instructionString = 'Play: Single Tap\n'
-      'Stop: Single Tap\n'
-      'Next Song: Double Tap\n';
-
-  @override
-  Future<void>? onLoad() {
-    instructions
-      ..text = '$instructionString\n Track Number: $trackNumber'
-      ..textRenderer = regular
-      ..y = 100
-      ..x = 20;
-
-    add(instructions);
-    return super.onLoad();
-  }
-
-  @override
-  void onTapUp(TapUpInfo info) {
-    if (!isPlayingMusic) {
-      switch (trackNumber) {
-        case 1:
-          FlameAudio.bgm.play('track01.mp3');
-          isPlayingMusic = true;
-          break;
-        case 2:
-          FlameAudio.bgm.play('track02.mp3');
-          isPlayingMusic = true;
-          break;
-      }
-      instructions.text =
-          '$instructionString\n Track Number: $trackNumber\n Status: Playing';
-    } else {
-      FlameAudio.bgm.stop();
-      isPlayingMusic = false;
-      instructions.text =
-          '$instructionString\n Track Number: $trackNumber\n Status: Stopped';
-    }
-    super.onTapUp(info);
-  }
-
-  @override
-  void onDoubleTap() {
-    trackNumber++;
-    if (trackNumber > 2) {
-      trackNumber = 1;
-    }
-    if (isPlayingMusic) {
-      instructions.text =
-          '$instructionString\n Track Number: $trackNumber\n Status: Playing';
-    } else {
-      instructions.text =
-          '$instructionString\n Track Number: $trackNumber\n Status: Stopped';
-    }
-    super.onDoubleTap();
   }
 }
